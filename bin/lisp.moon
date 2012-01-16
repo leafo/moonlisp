@@ -1,6 +1,6 @@
 #!/usr/bin/env moon
 
-import parse_and_compile from require "lisp.parse"
+import parse_and_compile, parse from require "lisp.parse"
 
 --
 --
@@ -9,7 +9,7 @@ import parse_and_compile from require "lisp.parse"
 
 require "alt_getopt"
 
-opts, ind = alt_getopt.get_opts arg, "r", { }
+opts, ind = alt_getopt.get_opts arg, "rT", { }
 
 lisp_code = if arg[ind]
   f = io.open(arg[ind])
@@ -19,9 +19,13 @@ lisp_code = if arg[ind]
 else
   io.stdin\read "*a"
 
-lua_code = parse_and_compile lisp_code
-if opts.r
-  loadstring(lua_code)!
+if opts.T
+  import p from require "moon"
+  p parse lisp_code
 else
-  print lua_code
+  lua_code = parse_and_compile lisp_code
+  if opts.r
+    loadstring(lua_code)!
+  else
+    print lua_code
 

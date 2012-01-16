@@ -124,9 +124,25 @@ forms = {
   car: index_on 1
   cdr: index_on 2
 
+  list: (exp) ->
+    make_list [compile val for val in *exp[2,]]
+
   setf: (exp) ->
     _, name, value = unpack exp
     assign atom(name), compile value
+
+
+  let: (exp) ->
+    assigns = exp[2][2]
+
+    scope = for asn in *assigns
+      name, value = unpack asn[2]
+      {"assign", {LocalName atom name}, {compile value}}
+
+    for e in *exp[3,]
+      insert scope, compile e
+
+    to_func scope
 
   defun: (exp) ->
     _, name, args, body = unpack exp
@@ -139,7 +155,8 @@ forms = {
 
   -- make this generic for all other binary operators with more than two args
   eq: (exp) ->
-    eqs = bigrams [e for e in *exp[2,]]
+    eqs = bigrams [compile e for e in *exp[2,]]
+
     out = {"exp"}
     if #eqs > 1
       for i = 1, #eqs
@@ -148,7 +165,8 @@ forms = {
         insert out, "and" if i != #eqs
       out
     else
-      {"exp", exp[2], "==", exp[3]}
+      exp = eqs[1] -- compiled
+      {"exp", exp[1], "==", exp[2]}
 
   not: (exp) ->
     {"not", compile exp[2]}
@@ -165,7 +183,21 @@ forms = {
 
   and: operator_form
   or: operator_form
+
+  if: (exp) ->
+    _, cond, pass, fail = unpack exp
+
+    to_func {
+      {
+        "if"
+        compile cond
+        { compile pass }
+        {"else", { compile fail }}
+      }
+    }
 }
+
+forms.eql = forms.eq
 
 compile = (exp) ->
   switch exp[1]
@@ -203,6 +235,9 @@ boot = [[
 require("moonscript")
 require("lisp.lib");
 ]]
+
+export parse = (lisp_code) ->
+  parser\match lisp_code
 
 export parse_and_compile = (lisp_code) ->
   tree = parser\match lisp_code
