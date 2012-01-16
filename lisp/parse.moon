@@ -78,7 +78,7 @@ compile = nil
 quote = (exp) ->
   switch exp[1]
     when "atom"
-      str = ("%q")\format(exp)\sub 2, -2
+      str = ("%q")\format(atom exp)\sub 2, -2
       compile {"string", '"', str}
     when "list"
       make_list [quote(val) for val in *exp[2]]
