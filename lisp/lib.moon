@@ -26,9 +26,19 @@ export *
 
 consp = (arg) -> type(arg) == "table"
 listp = (arg) -> type(arg) == nil or arg == nil
+
 null = (arg) -> arg == nil
+atom = (arg) -> not consp arg
 
 zerop = (arg) -> arg == 0
+
+nth = (n, lst) ->
+  while n > 0
+    return nil if not lst
+    lst = lst[2]
+    n -= 1
+
+  lst[1]
 
 -- tests if a,b represent the same thing
 equal = (a, b) ->

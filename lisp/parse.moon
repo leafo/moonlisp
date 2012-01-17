@@ -94,6 +94,13 @@ limit_args = (n, fn) ->
 
     fn exp
 
+chainable = (val) ->
+  t = type val
+  if t == "table" and not CALLABLE[val[1]] or t != "string"
+    {"parens", val}
+  else
+    val
+
 operator_form = (exp) ->
   op = atom(exp[1])
   out = {"exp"}
@@ -104,13 +111,17 @@ operator_form = (exp) ->
 
 index_on = (n) ->
   (exp) ->
-    val = compile(exp[2])
-
-    t = type val
-    if t == "table" and not CALLABLE[val[1]] or t != "string"
-      val = {"parens", val}
-
+    val = chainable compile exp[2]
     {"chain", val, {"index", {"number", n}}}
+
+get_n = (n) ->
+  (exp) ->
+    val = chainable compile exp[2]
+    chain = {"chain", val}
+    for i = 0, n - 1
+      insert chain, {"index", {"number", 2}}
+    insert chain, {"index", {"number", 1}}
+    chain
 
 -- system level macros
 forms = {
@@ -181,6 +192,13 @@ forms = {
   [">"]: limit_args 2, operator_form
   [">="]: limit_args 2, operator_form
 
+  first: get_n 0
+  second: get_n 1
+  third: get_n 2
+  fourth: get_n 3
+  fifth: get_n 4
+  sixth: get_n 5
+
   and: operator_form
   or: operator_form
 
@@ -198,6 +216,7 @@ forms = {
 }
 
 forms.eql = forms.eq
+forms.rest = forms.cdr
 
 compile = (exp) ->
   switch exp[1]
