@@ -1,6 +1,6 @@
 require("moonscript")
 require("lisp.lib");
-_ = {
+p({
   "hello",
   {
     2,
@@ -18,4 +18,33 @@ _ = {
       }
     }
   }
-}
+})
+p({
+  "hello",
+  {
+    2,
+    {
+      print("hello"),
+      {
+        4,
+        nil
+      }
+    }
+  }
+})
+p({
+  "hello",
+  {
+    2,
+    __splice({
+      "hello",
+      {
+        "world",
+        nil
+      }
+    }, {
+      4,
+      nil
+    })
+  }
+})

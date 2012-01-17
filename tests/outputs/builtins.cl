@@ -122,3 +122,61 @@ print(nth(2, {
     }
   }
 }))
+p(reverse(nil))
+p(reverse({
+  1,
+  {
+    2,
+    {
+      3,
+      {
+        4,
+        {
+          5,
+          nil
+        }
+      }
+    }
+  }
+}))
+p(append({
+  "hello",
+  {
+    "world",
+    nil
+  }
+}, {
+  1,
+  {
+    2,
+    {
+      3,
+      {
+        4,
+        nil
+      }
+    }
+  }
+}))
+p(append(nil, nil))
+p(append(nil, {
+  1,
+  {
+    2,
+    {
+      3,
+      nil
+    }
+  }
+}))
+p(append({
+  1,
+  {
+    2,
+    {
+      3,
+      nil
+    }
+  }
+}, nil))
+p(1, 2, 3)

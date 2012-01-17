@@ -29,6 +29,7 @@ auto_variable = (fn) ->
       V name if name\match "^[A-Z]"
   }
 
+-- find out if it is inefficient to do whitespace first?
 parser = auto_variable ->
   P {
     Code
@@ -39,18 +40,18 @@ parser = auto_variable ->
     Atom: White * C((R("az", "AZ", "09") + S"-_*/+=<>%")^1) / mark"atom"
     String: White * C(sym'"') * C((P"\\\\" + '\\"' + (1 - S'"\r\n'))^0) * '"' / mark"string"
     Quote: White * (P"'" + "`") * Value / mark"quote"
-    Unquote: sym"," * Value / mark"unquote"
+    Unquote: sym"," * (P"@" * Value / mark"unquote_splice" + Value / mark"unquote" )
 
     SExp: sym"(" * Ct(Value^0) * sym")" / mark"list"
-
 
     Value: Number + String + SExp + Quote + Unquote + Atom
   }
 
 CALLABLE = Set{"parens", "chain"}
+BUILTIN = { splice: "__splice" }
 
 atom = (exp) ->
-  assert exp[1] == "atom"
+  assert exp and exp[1] == "atom", "expecting atom"
   exp[2]
 
 bigrams = (list) ->
@@ -73,7 +74,10 @@ assign = (name, value)->
 make_list = (exps) ->
   list = "nil"
   for i = #exps, 1, -1
-    list = {"table", {{exps[i]}, {list}}}
+    list = if exps[i][1] == "splice"
+      {"chain", BUILTIN.splice, {"call", {exps[i][2], list}}}
+    else
+      {"table", {{exps[i]}, {list}}}
   list
 
 compile = nil
@@ -88,6 +92,8 @@ quote = (exp) ->
       error "don't know how to quote a quote"
     when "unquote"
       compile exp[2]
+    when "unquote_splice"
+      {"splice", compile exp[2]}
     else
       exp
 
@@ -230,8 +236,11 @@ compile = (exp) ->
       exp[2]
     when "unquote"
       error "comma must be inside quote"
+    when "unquote_splice"
+      error "comma must be inside quote"
     when "list"
       lst = exp[2]
+      return "nil" if #lst == 0
       operator = atom(lst[1])
 
       if forms[operator]
