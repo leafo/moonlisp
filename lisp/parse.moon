@@ -35,14 +35,14 @@ parser = auto_variable ->
 
     Code: Ct(Value^0) * White * -1
 
-    Number: White * C R"09"^1
-    Atom: White * C (R("az", "AZ", "09") + S"-_*/+=<>%")^1
-    String: White * C(sym'"') * C((P"\\\\" + '\\"' + (1 - S'"\r\n'))^0) * '"'
-    Quote: sym"'" * Value
+    Number: White * C(R"09"^1) / mark"number"
+    Atom: White * C((R("az", "AZ", "09") + S"-_*/+=<>%")^1) / mark"atom"
+    String: White * C(sym'"') * C((P"\\\\" + '\\"' + (1 - S'"\r\n'))^0) * '"' / mark"string"
+    Quote: sym"'" * Value / mark"quote"
 
-    SExp: White * sym"(" * Ct(Value^0) * sym")"
+    SExp: sym"(" * Ct(Value^0) * sym")" / mark"list"
 
-    Value: Number / mark"number" + String / mark"string" + SExp / mark"list" + Quote/ mark"quote" + Atom / mark"atom"
+    Value: Number + String + SExp + Quote + Atom
   }
 
 CALLABLE = Set{"parens", "chain"}
