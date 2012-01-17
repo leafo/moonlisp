@@ -1,0 +1,21 @@
+require("moonscript")
+require("lisp.lib");
+_ = {
+  "hello",
+  {
+    2,
+    {
+      {
+        "print",
+        {
+          "hello",
+          nil
+        }
+      },
+      {
+        4,
+        nil
+      }
+    }
+  }
+}

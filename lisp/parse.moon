@@ -38,11 +38,13 @@ parser = auto_variable ->
     Number: White * C(R"09"^1) / mark"number"
     Atom: White * C((R("az", "AZ", "09") + S"-_*/+=<>%")^1) / mark"atom"
     String: White * C(sym'"') * C((P"\\\\" + '\\"' + (1 - S'"\r\n'))^0) * '"' / mark"string"
-    Quote: sym"'" * Value / mark"quote"
+    Quote: White * (P"'" + "`") * Value / mark"quote"
+    Unquote: sym"," * Value / mark"unquote"
 
     SExp: sym"(" * Ct(Value^0) * sym")" / mark"list"
 
-    Value: Number + String + SExp + Quote + Atom
+
+    Value: Number + String + SExp + Quote + Unquote + Atom
   }
 
 CALLABLE = Set{"parens", "chain"}
@@ -84,6 +86,8 @@ quote = (exp) ->
       make_list [quote(val) for val in *exp[2]]
     when "quote"
       error "don't know how to quote a quote"
+    when "unquote"
+      compile exp[2]
     else
       exp
 
@@ -224,6 +228,8 @@ compile = (exp) ->
       quote exp[2]
     when "atom"
       exp[2]
+    when "unquote"
+      error "comma must be inside quote"
     when "list"
       lst = exp[2]
       operator = atom(lst[1])
