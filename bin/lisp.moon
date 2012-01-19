@@ -1,6 +1,7 @@
 #!/usr/bin/env moon
 
-import parse_and_compile, parse from require "lisp.parse"
+import parse_and_compile from require"lisp.compile"
+import parse from require "lisp.parse"
 
 --
 --

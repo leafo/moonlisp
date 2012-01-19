@@ -23,7 +23,7 @@ join = (left, right) ->
 log = (...) -> print " ** ", ...
 
 compile = (code) ->
-  import parse_and_compile from require "lisp.parse"
+  import parse_and_compile from require "lisp.compile"
   parse_and_compile code
 
 diff = (a, b, diff_tool) ->
