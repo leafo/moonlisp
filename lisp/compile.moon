@@ -11,12 +11,10 @@ import RootBlock from moonscript.compile
 
 Set = (items) -> { name, true for name in *items}
 
+import atom from require"lisp.types"
+
 CALLABLE = Set{"parens", "chain"}
 BUILTIN = { splice: "__splice" }
-
-atom = (exp) ->
-  assert exp and exp[1] == "atom", "expecting atom"
-  exp[2]
 
 bigrams = (list) ->
   return {list} if #list == 1
@@ -44,6 +42,7 @@ make_list = (exps) ->
       {"table", {{exps[i]}, {list}}}
   list
 
+macros = nil -- TODO fixme
 compile = nil
 quote = (exp) ->
   switch exp[1]
@@ -193,6 +192,7 @@ forms.eql = forms.eq
 forms.rest = forms.cdr
 
 compile = (exp) ->
+  exp = macros\expand exp
   switch exp[1]
     when "quote" -- the ' operator
       quote exp[2]
@@ -205,7 +205,7 @@ compile = (exp) ->
     when "list"
       lst = exp[2]
       return "nil" if #lst == 0
-      operator = atom(lst[1])
+      operator = atom lst[1]
 
       if forms[operator]
         forms[operator] lst
@@ -234,11 +234,15 @@ require("moonscript")
 require("lisp.lib");
 ]]
 
-import parse from require "lisp.parse"
+import parse from require"lisp.parse"
+import scan_macros from require"lisp.macros"
 
 export parse_and_compile = (lisp_code) ->
   tree = parse lisp_code
   assert tree, "Parse failed"
+
+  tree, macros = scan_macros tree
+
   code = compile_all tree
   concat { boot, code }
 
