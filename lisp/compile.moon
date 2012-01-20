@@ -4,6 +4,8 @@ module "lisp.compile", package.seeall
 require "moonscript.transform"
 require "moonscript.compile"
 
+import p from require"moon"
+
 import insert, concat from table
 
 import LocalName from moonscript.transform
@@ -102,6 +104,15 @@ forms = {
     error "too many parameters to quote" if #exp > 2
     quote exp[2]
 
+  lambda: (exp) ->
+    args = exp[2]
+    body = [compile(e) for e in *exp[3,]]
+
+    {
+      "fndef", [{atom name} for name in *args[2]],
+      {}, "slim", body
+    }
+
   cons: (exp) ->
     {"table", [{compile(val)} for val in *exp[2,]]}
 
@@ -114,7 +125,6 @@ forms = {
   setf: (exp) ->
     _, name, value = unpack exp
     assign atom(name), compile value
-
 
   let: (exp) ->
     assigns = exp[2][2]
@@ -129,7 +139,7 @@ forms = {
     to_func scope
 
   defun: (exp) ->
-    _, name, args, body = unpack exp
+    _, name, args = unpack exp
     body = [compile(e) for e in *exp[4,]]
 
     assign atom(name), {
