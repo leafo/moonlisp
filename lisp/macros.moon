@@ -39,9 +39,7 @@ class MacroScope
     fn = @compiled_macros[name]
 
     if not fn
-      print "compiling", name
       code = compile.compile_all { @macros[name] }
-      -- print code
       fn = loadstring(code)!
       @compiled_macros[name] = fn
 
@@ -50,8 +48,6 @@ class MacroScope
   defmacro: (exp) =>
     parts = list exp
     name = atom parts[2]
-
-    print "found macro:", name
 
     -- convert the macro to a returned lambda
     fn = make_list{
