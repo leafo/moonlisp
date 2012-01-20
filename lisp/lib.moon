@@ -2,15 +2,7 @@
 require "moon"
 
 import insert from table
-
-flatten_list = (lst) ->
-  flat = {}
-  current = lst
-  while current
-    insert flat, current[1]
-    current = current[2]
-
-  flat
+import flatten_list from require"lisp.types"
 
 pretty_format = (item) ->
   switch type item

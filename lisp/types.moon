@@ -2,8 +2,18 @@
 module "lisp.types", package.seeall
 
 import p from require"moon"
+import insert from table
 
 export *
+
+flatten_list = (lst) ->
+  flat = {}
+  current = lst
+  while current
+    insert flat, current[1]
+    current = current[2]
+
+  flat
 
 atom = (exp) ->
   assert exp and exp[1] == "atom", "expecting atom"

@@ -104,6 +104,11 @@ forms = {
     error "too many parameters to quote" if #exp > 2
     quote exp[2]
 
+  return: (exp) ->
+    {"return", { "explist"
+      unpack [compile val for val in *exp[2,]]
+    }}
+
   lambda: (exp) ->
     args = exp[2]
     body = [compile(e) for e in *exp[3,]]
