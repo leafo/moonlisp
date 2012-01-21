@@ -60,7 +60,7 @@ quote = (exp) ->
     when "unquote_splice"
       {"splice", compile exp[2]}
     else
-      exp
+      exp -- strings and numbers
 
 limit_args = (n, fn) ->
   (exp) ->
@@ -231,7 +231,7 @@ compile = (exp) ->
           {"call", [compile(val) for val in *lst[2,]]}
         }
     else
-      exp
+      exp -- strings and numbers
 
 export compile_all = (tree) ->
   stms = for exp in *tree

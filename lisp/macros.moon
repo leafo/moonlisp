@@ -9,6 +9,7 @@ import atom, list, fncall_name, flatten_list from require"lisp.types"
 make_list = (items) -> {"list", items}
 make_atom = (name) -> {"atom", name}
 make_number = (num) -> {"number", num}
+make_quote = (e) -> {"quote", e}
 
 -- macros are broken
 -- need to be able to differentiate symbols and strings
@@ -66,10 +67,11 @@ class MacroScope
 
       args = make_list{
         make_atom"return"
-        unpack [e for e in *list(exp)[2,]]
+        unpack [make_quote e for e in *list(exp)[2,]]
       }
 
-      expanded = fn loadstring(compile.compile_all{args})!
+      arg_code = compile.compile_all{args}
+      expanded = fn loadstring(arg_code)!
       to_ast expanded
     else
       exp
