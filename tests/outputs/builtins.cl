@@ -140,9 +140,9 @@ p(reverse({
   }
 }))
 p(append({
-  "hello",
+  __S("hello"),
   {
-    "world",
+    __S("world"),
     nil
   }
 }, {

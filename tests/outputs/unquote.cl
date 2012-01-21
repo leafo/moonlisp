@@ -1,12 +1,12 @@
 require("moonscript")
 require("lisp.lib");
 p({
-  "hello",
+  __S("hello"),
   {
     2,
     {
       {
-        "print",
+        __S("print"),
         {
           "hello",
           nil
@@ -20,7 +20,7 @@ p({
   }
 })
 p({
-  "hello",
+  __S("hello"),
   {
     2,
     {
@@ -33,7 +33,7 @@ p({
   }
 })
 p({
-  "hello",
+  __S("hello"),
   {
     2,
     __splice({

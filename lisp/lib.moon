@@ -2,24 +2,14 @@
 require "moon"
 
 import insert from table
-import flatten_list from require"lisp.types"
-
-pretty_format = (item) ->
-  switch type item
-    when "table"
-      flat = [pretty_format i for i in *flatten_list item]
-      "(" .. table.concat(flat, " ") .. ")"
-    when "string"
-      ("%q")\format item
-    when "nil"
-      "nil"
-    else
-      item
+import type, flatten_list, symbol_metatable, is_symbol, pretty_format from require"lisp.types"
 
 export *
 
 __splice = (val, tail) ->
   append val, tail
+
+__S = (name)-> setmetatable { name }, symbol_metatable
 
 consp = (arg) -> type(arg) == "table"
 listp = (arg) -> type(arg) == "table" or arg == nil

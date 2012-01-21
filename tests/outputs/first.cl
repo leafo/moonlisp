@@ -2,9 +2,9 @@ require("moonscript")
 require("lisp.lib");
 (function()
   hello = {
-    "balls",
+    __S("balls"),
     {
-      "land",
+      __S("land"),
       nil
     }
   }
@@ -19,7 +19,7 @@ end)();
 (function()
   hello = function(x, y)
     _ = (2 + 3 + 4)
-    return print("hi")
+    return print(__S("hi"))
   end
   return hello
 end)()

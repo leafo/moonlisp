@@ -4,34 +4,43 @@ module "lisp.macros", package.seeall
 import p from require "moon"
 import insert, concat from table
 
-import atom, list, fncall_name, flatten_list from require"lisp.types"
+import type, atom, list, fncall_name, flatten_list, quote_string from require"lisp.types"
 
 make_list = (items) -> {"list", items}
 make_atom = (name) -> {"atom", name}
 make_number = (num) -> {"number", num}
 make_quote = (e) -> {"quote", e}
 
--- macros are broken
--- need to be able to differentiate symbols and strings
--- when reconstructing ast nodes
-
 compile = nil
+
+require_single = (name) ->
+  for loader in *package.loaders
+    fn, msg = loader name
+    if fn
+      env = setmetatable {}, __index: _G
+      setfenv fn, env
+      fn name
+      return env
 
 to_ast = (val) ->
   switch type val
+    when "symbol"
+      make_atom tostring val
     when "table"
       lst = flatten_list val
       make_list [to_ast v for v in *lst]
     when "number"
       make_number val
     else
-      make_atom tostring val
+      quote_string val
 
 class MacroScope
   new: =>
     compile = require "lisp.compile" if not compile
     @macros = {}
     @compiled_macros = {}
+
+    @macro_env = require_single "lisp.lib"
   
   has_macro: (name) =>
     @macros[name] != nil
@@ -42,6 +51,7 @@ class MacroScope
     if not fn
       code = compile.compile_all { @macros[name] }
       fn = loadstring(code)!
+      setfenv fn, @macro_env
       @compiled_macros[name] = fn
 
     fn
@@ -71,7 +81,7 @@ class MacroScope
       }
 
       arg_code = compile.compile_all{args}
-      expanded = fn loadstring(arg_code)!
+      expanded = fn setfenv(loadstring(arg_code), @macro_env)!
       to_ast expanded
     else
       exp

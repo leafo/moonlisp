@@ -13,10 +13,10 @@ import RootBlock from moonscript.compile
 
 Set = (items) -> { name, true for name in *items}
 
-import atom from require"lisp.types"
+import atom, quote_string from require"lisp.types"
 
 CALLABLE = Set{"parens", "chain"}
-BUILTIN = { splice: "__splice" }
+BUILTIN = { splice: "__splice", make_sym: "__S" }
 
 bigrams = (list) ->
   return {list} if #list == 1
@@ -28,6 +28,9 @@ to_func = (inner) ->
     "fndef", {}, {}, "slim"
     inner
   }}, {"call", {}}}
+
+to_string = (exp) ->
+  quote_string atom exp
 
 assign = (name, value)->
   to_func {
@@ -49,8 +52,9 @@ compile = nil
 quote = (exp) ->
   switch exp[1]
     when "atom"
-      str = ("%q")\format(atom exp)\sub 2, -2
-      compile {"string", '"', str}
+      {"chain", BUILTIN.make_sym, {"call", {to_string exp}}}
+      -- str = ("%q")\format(atom exp)\sub 2, -2
+      -- compile {"string", '"', str}
     when "list"
       make_list [quote(val) for val in *exp[2]]
     when "quote"

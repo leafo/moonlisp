@@ -11,3 +11,8 @@
 
 (print_var hello)
 
+(defmacro print_string (str)
+  `(print ,str))
+
+(print_string "hello world")
+
